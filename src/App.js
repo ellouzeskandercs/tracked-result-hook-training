@@ -1,6 +1,11 @@
 import "./App.css";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ComponentA, ComponentB } from "./test-query/Components";
+import {
+  ComponentA,
+  ComponentB,
+  ComponentC,
+  ComponentD,
+} from "./test-query/Components";
 
 function App() {
   return (
@@ -16,6 +21,8 @@ function App() {
           >
             <ComponentA />
             <ComponentB />
+            <ComponentC />
+            <ComponentD />
           </div>
         </QueryClientProvider>
       </header>
