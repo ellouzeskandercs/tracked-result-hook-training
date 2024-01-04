@@ -1,23 +1,16 @@
-import logo from './logo.svg';
-import './App.css';
+import logo from "./logo.svg";
+import "./App.css";
+import React from "react";
+import { useNbOfRenders } from "./test-query/useNbOfRenders";
 
 function App() {
+  const rerender = //TODO
+  const nbOfRenders = useNbOfRenders();
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <button onClick={rerender}>rerender</button>
+      <p>component has rendered: {nbOfRenders} times</p>
     </div>
   );
 }
