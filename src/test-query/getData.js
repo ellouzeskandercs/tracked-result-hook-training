@@ -1,4 +1,4 @@
-const shouldCreateNewData = true;
+const shouldCreateNewData = false;
 
 export const getData = () => {
   return new Promise((resolve) => {
