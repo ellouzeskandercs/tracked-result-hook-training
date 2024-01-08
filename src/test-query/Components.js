@@ -14,7 +14,7 @@ export const ComponentA = () => {
 
   return (
     <ComponentDesign
-      data={data}
+      data={data?.value}
       nbOfRenders={nbOfRenders}
       onClick={refetch}
       showLoader={isFetching}
@@ -31,7 +31,11 @@ export const ComponentB = () => {
   const nbOfRenders = useNbOfRenders();
 
   return (
-    <ComponentDesign data={data} nbOfRenders={nbOfRenders} onClick={refetch} />
+    <ComponentDesign
+      data={data?.value}
+      nbOfRenders={nbOfRenders}
+      onClick={refetch}
+    />
   );
 };
 
@@ -43,7 +47,7 @@ export const ComponentC = () => {
 
   return (
     <ComponentDesign
-      data={data}
+      data={data?.value}
       nbOfRenders={nbOfRenders}
       onClick={refetch}
       showLoader={isFetching}
@@ -58,6 +62,10 @@ export const ComponentD = () => {
   const nbOfRenders = useNbOfRenders();
 
   return (
-    <ComponentDesign data={data} nbOfRenders={nbOfRenders} onClick={refetch} />
+    <ComponentDesign
+      data={data?.value}
+      nbOfRenders={nbOfRenders}
+      onClick={refetch}
+    />
   );
 };
