@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import isEqual from "lodash/isEqual";
 
 const useTrackedResult = (initialValues) => {
   const trackedResultKeys = useRef(new Set());
@@ -21,7 +22,7 @@ const useTrackedResult = (initialValues) => {
 
   const setResult = (newResult) => {
     const shouldRerender = !!Array.from(trackedResultKeys.current).find(
-      (key) => newResult[key] !== result.current[key]
+      (key) => !isEqual(newResult[key], result.current[key])
     );
 
     result.current = newResult;

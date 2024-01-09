@@ -3,6 +3,7 @@ import { ComponentDesign } from "./ComponentDesign";
 import { getData } from "./getData";
 import { useNbOfRenders } from "./useNbOfRenders";
 import { useBAMQuery } from "./useBAMQuery";
+import { useEffect } from "react";
 
 export const ComponentA = () => {
   const { data, isFetching, refetch } = useQuery({
@@ -11,6 +12,10 @@ export const ComponentA = () => {
     enabled: false,
   });
   const nbOfRenders = useNbOfRenders();
+
+  useEffect(() => {
+    console.log("new data user in A", data?.user);
+  }, [data?.user]);
 
   return (
     <ComponentDesign
@@ -44,6 +49,10 @@ export const ComponentC = () => {
     queryFn: getData,
   });
   const nbOfRenders = useNbOfRenders();
+
+  useEffect(() => {
+    console.log("new data user in C", data?.user);
+  }, [data?.user]);
 
   return (
     <ComponentDesign
