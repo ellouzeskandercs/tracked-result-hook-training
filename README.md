@@ -1,70 +1,62 @@
-# Getting Started with Create React App
+## Project Aim
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This project walks through the process of optimizing a custom `useQuery` hook to efficiently manage state and re-renders, inspired by React Query's `useQuery` hook. The project is purely educational and not intended for production use (React Query's `useQuery` should be used instead).
 
-## Available Scripts
+## Project Setup
 
-In the project directory, you can run:
+- **Framework:** This is a React project.
+- **Starting the Project:** Run `yarn start` to start the project locally.
 
-### `npm start`
+## How This Project is Organized
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+The application is a single page that includes four main components:
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+- **Component A (top left):** Uses React Query's `useQuery` to fetch data, accessing the `isFetching` and `data` fields to display a loader followed by the data.
+- **Component B (top right):** Similar to Component A but only accesses `data` and displays it without a loader.
+- **Component C (bottom left):** Uses a custom `useQuery` hook that mimics the behavior of Component A.
+- **Component D (bottom right):** Uses a custom `useQuery` hook that mimics the behavior of Component B.
 
-### `npm test`
+For each component, we display the number of renders, the data/loader, and a button to execute the query. All `useQuery` hooks use the same query function.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+![App screenshot](./app_screenshot.png)
 
-### `npm run build`
+The project is divided into a series of commits, each representing a step toward optimizing our custom `useQuery` hook. These steps are documented in the "Step-by-Step Optimization Guide" section of this README.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## The Step-by-Step Optimization Guide
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+Here's a detailed breakdown of each step in optimizing our `useQuery` hook:
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### Step 1: Initial Custom Hook Implementation
 
-### `npm run eject`
+- **Description:** We start with a custom hook using a simple `useState`.
+- **Observation:** The custom hook re-renders twice, even if the `isFetching` field isn't accessed (Component D), unlike React Query's `useQuery` which only re-renders once under similar conditions (Component B), as shown in the image below.
+- **Commit Reference:** `0107bc81b72716fd9d345821e242b1b0eed8024a`
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+![Step 1 demonstration](./step_1.gif)
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### Step 2: Introducing the Tracking Pattern
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+- **Description:** We address unnecessary re-renders by implementing a `useTrackedResult` hook for our custom `useQuery`. This hook uses JavaScript getters to monitor accessed fields (like `isFetching` or `data`) and only triggers re-renders when these tracked fields' values change, similar to React Query's [QueryObserver](https://github.com/TanStack/query/blob/c8442f8256aa37b479a45037a1681066f001496b/packages/query-core/src/queryObserver.ts#L253).
+- **Commit Reference:** `b3813124eab25f484d212ad987342b2a3a330274`
+- **Improvement:** This selective re-rendering enhances performance, aligning our hook more closely with React Query's efficient behavior.
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+![Step 2 demonstration](./step_2.gif)
 
-## Learn More
+### Step 3: Handling Non-Primitive Query Results
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+- **Description:** We modify the query to return an object instead of a primitive value. This change reveals a limitation: our custom hook re-renders even when the object's properties haven't changed, unlike `useQuery`.
+- **Commit Reference:** `b531f4ebc59375f05396786339d4abece7fcaa93`
+- **Solution:** The issue is due to shallow equality checks. To align with React Query, we implement deep equality checks using `lodash/isEqual` to accurately determine when to trigger re-renders.
+- **Deep Equality Commit:** `65bee41bbf3c367fbb5cf9b294cf1d4205004819`
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+### Step 4: Ensuring Reference Stability
 
-### Code Splitting
+- **Description:** The final step involves adding a constant object field to the query's return value and monitoring changes to this field's reference with `useEffect`. Unlike React Query, which maintains reference stability, our custom hook triggers the `useEffect` callback with each update.
+- **Commit Reference:** `65bee41bbf3c367fbb5cf9b294cf1d4205004819`
+- **Conclusion:** This highlights the importance of structural sharing techniques, like those used by [React Query](https://github.com/TanStack/query/blob/68b5d792fa97e2c816124714ff0b057b2190555a/packages/query-core/src/utils.ts#L219), to prevent unnecessary re-renders. This technique was not added to our custom hook in this training.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+![Step 4 demonstration](./step_4.gif)
 
-### Analyzing the Bundle Size
+At the end of this guide, you should have a deeper understanding of the cell in the [React Query comparison table](https://tanstack.com/query/v5/docs/framework/react/comparison):
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+![React Query Comparison](react-query_comparison.png)

@@ -1,0 +1,237 @@
+// const useOnlyWhatYouWantResult = (defaultValue) => {
+//   const trackedResultKeys = useRef(new Set());
+//   const [result, setResult] = useState(() => {
+//     const result = {};
+
+//     Object.keys(defaultValue).forEach((key) => {
+//       Object.defineProperty(result, key, {
+//         enumerable: true,
+//         get: () => {
+//           trackedResultKeys.current.add(key);
+//           return defaultValue[key];
+//         },
+//       });
+//     });
+
+//     return result;
+//   });
+
+//   const setOnlyWhatYouWantResult = (updatedResult) => {
+//     const updatedKeys = Object.keys(updatedResult).filter((key) =>
+//       trackedResultKeys.current.has(key)
+//     );
+//     // .filter((key) => updatedResult[key] !== result[key]);
+
+//     if (updatedKeys.length === 0) {
+//       return;
+//     }
+
+//     setResult((currentResult) => {
+//       const newResult = {};
+
+//       trackedResultKeys.current.forEach((key) => {
+//         if (key === "isFetching") {
+//             updatedKeys,
+//             updatedKeys.includes(key),
+//             updatedResult[key]
+//           );
+//         }
+
+//         if (updatedKeys.includes(key)) {
+//           newResult[key] = updatedResult[key];
+//         } else {
+//           newResult[key] = currentResult[key];
+//         }
+//       });
+
+//       return newResult;
+//     });
+//   };
+
+//   return [result, setOnlyWhatYouWantResult];
+// };
+
+// export const useBAMQuery = ({ queryFn }) => {
+//   const [result, setResult] = useOnlyWhatYouWantResult({
+//     isFetching: false,
+//     data: undefined,
+//   });
+
+//   const refetch = useCallback(async () => {
+//     setResult({ isFetching: true });
+//     const newData = await queryFn();
+//     setResult({
+//       data: newData,
+//       isFetching: false,
+//     });
+//   }, [queryFn]);
+
+//   Object.assign(result, { refetch });
+
+//   return result;
+// };
+
+// export const useBAMQuery = ({ queryFn }) => {
+//   const [result, setResult] = useState({ isFetching: false, data: undefined });
+
+//   const refetch = useCallback(async () => {
+//     setResult((currentResult) => ({ ...currentResult, isFetching: true }));
+//     const newData = await queryFn();
+//     setResult((currentResult) => ({
+//       ...currentResult,
+//       data: newData,
+//       isFetching: false,
+//     }));
+//   }, [queryFn]);
+
+//   Object.assign(result, { refetch });
+
+//   return result;
+// };
+
+// export const useBAMQuery = ({ queryFn }) => {
+//   const [data, setData] = useState(false);
+//   const [isFetching, setIsFetching] = useState(false);
+//   const trackedProps = useRef([]);
+
+//   const refetch = useCallback(async () => {
+//     trackedProps.current.includes("isFetching") && setIsFetching(true);
+//     const newData = await queryFn();
+//     trackedProps.current.includes("isFetching") && setIsFetching(false);
+//     setData(newData);
+//   }, [queryFn]);
+
+//   const result = {};
+//   Object.defineProperty(result, "data", {
+//     get: () => {
+//       trackedProps.current.push("data");
+//       return data;
+//     },
+//     enumerable: true,
+//   });
+//   Object.defineProperty(result, "isFetching", {
+//     get: () => {
+//       trackedProps.current.push("isFetching");
+//       return isFetching;
+//     },
+//     enumerable: true,
+//   });
+//   Object.defineProperty(result, "refetch", {
+//     get: () => {
+//       trackedProps.current.push("refetch");
+//       return refetch;
+//     },
+//     enumerable: true,
+//   });
+
+//   return result;
+// };
+
+// export const useBAMQuery = ({ queryFn }) => {
+//   const [data, setData] = useState(false);
+//   const [isFetching, setIsFetching] = useState(false);
+//   const trackedProps = useRef([]);
+
+//   const refetch = useCallback(async () => {
+//     trackedProps.current.includes("isFetching") && setIsFetching(true);
+//     const newData = await queryFn();
+//     trackedProps.current.includes("isFetching") && setIsFetching(false);
+//     setData(newData);
+//   }, [queryFn]);
+
+//   const result = {};
+//   Object.defineProperty(result, "data", {
+//     get: () => {
+//       trackedProps.current.push("data");
+//       return data;
+//     },
+//     enumerable: true,
+//   });
+//   Object.defineProperty(result, "isFetching", {
+//     get: () => {
+//       trackedProps.current.push("isFetching");
+//       return isFetching;
+//     },
+//     enumerable: true,
+//   });
+//   Object.defineProperty(result, "refetch", {
+//     get: () => {
+//       trackedProps.current.push("refetch");
+//       return refetch;
+//     },
+//     enumerable: true,
+//   });
+
+//   return result;
+// };
+
+import { useState, useRef } from "react";
+
+const useOnlyWhatYouWantResult = (initialValues) => {
+  const trackedResultKeys = useRef(new Set());
+  const completeResult = useRef(initialValues);
+  const [result, setResult] = useState(() => {
+    const result = {};
+
+    Object.keys(initialValues).forEach((key) => {
+      Object.defineProperty(result, key, {
+        enumerable: true,
+        get: () => {
+          trackedResultKeys.current.add(key);
+          return initialValues[key];
+        },
+        set: (v) => {
+          return v;
+        },
+      });
+    });
+
+    return result;
+  });
+
+  const setOnlyWhatYouWantResult = (newResult) => {
+    let shouldRerender = false;
+    trackedResultKeys.current.forEach((key) => {
+      if (newResult[key] !== completeResult.current[key]) {
+        shouldRerender = true;
+      }
+    });
+
+    completeResult.current = newResult;
+
+    if (shouldRerender) {
+      const newResult = {};
+      Object.entries(completeResult.current).forEach(([key, value]) => {
+        Object.assign(newResult, { [key]: value });
+      });
+      setResult(newResult);
+    } else {
+      Object.entries(completeResult.current).forEach(([key, value]) => {
+        Object.assign(result, { [key]: value });
+      });
+    }
+  };
+
+  return [completeResult.current, result, setOnlyWhatYouWantResult];
+};
+
+export const useBAMQuery = ({ queryFn }) => {
+  const [result, returnResult, setResult] = useOnlyWhatYouWantResult({
+    isFetching: false,
+    data: undefined,
+  });
+
+  const refetch = async () => {
+    setResult({ ...result, isFetching: true });
+    const newData = await queryFn();
+    setResult({
+      ...result,
+      data: newData,
+      isFetching: false,
+    });
+  };
+
+  Object.assign(returnResult, { refetch });
+
+  return returnResult;
+};
